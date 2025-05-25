@@ -354,17 +354,21 @@ import {
 const Home = () => {
   const dispatch = useDispatch();
   const [userId, setUserId] = useState();
-  const [isAdmin, setIsAdmin] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [canDelete, setCanDelete] = useState(true);
   const [canActive, setCanActive] = useState(true);
   const { users } = useSelector((state) => state.user);
   const { list } = useSelector((state) => state.subAdmins);
+  const [cleanUserId, setCleanId] = useState(null);
+  const [findUser, setFindUser] = useState({});
 
   const {
     orderStatus,
     loading: orderLoading,
     error,
   } = useSelector((state) => state.orderStatus);
+
+
 
   const transformOrdersData = (orders) => {
     return orders.map((order) => {
@@ -379,42 +383,81 @@ const Home = () => {
     });
   };
 
+  // const transformOrderData = (orders) => {
+  //   return orders.flatMap(order =>
+  //     order.products.map(productItem => ({
+  //       // orderId: order._id,
+  //       orderCode: order.orderCode,
+  //       userEmail: order.userEmail,
+  //       productName: productItem.product.name,
+  //       // productId: productItem.product._id,
+  //       // skuCode: productItem.product.skuCode,
+  //       // thumbnail: productItem.product.thumbnail,
+  //       // mainImage: productItem.product.main,
+  //       // quantity: productItem.quantity,
+  //       productOrderStatus: productItem.orderStatus, // status of that specific product
+  //       // orderStatus: order.orderStatus,              // status of overall order
+  //       createdAt: order.createdAt,
+  //       isAction: order.isAction,
+  //       isOrderStatus: order.isOrderStatus,
+  //       status: order.status,
+  //     }))
+  //   );
+  // };
+
+
   useEffect(() => {
+    const userId = localStorage.getItem("AdminId");
+    setUserId(userId);
     dispatch(getUsers());
     dispatch(fetchOrderStatus());
     dispatch(fetchSubAdmins());
   }, [dispatch]);
 
+  // Add this new useEffect to handle user finding
   useEffect(() => {
-    const userId = localStorage.getItem("AdminId");
-    setUserId(userId);
-  }, []);
+    if (userId && users?.length > 0) {
+      const cleanUserId = String(userId).replace(/[^a-zA-Z0-9]/g, "");
+      setCleanId(cleanUserId);
+      console.log("Clean User ID:", cleanUserId);
+      console.log("All Users:", users);
 
-  const cleanUserId = String(userId).replace(/[^a-zA-Z0-9]/g, "");
+      const findUser = users.find((user) => String(user?._id) === cleanUserId);
+      console.log("Found User:", findUser);
+      setFindUser(findUser);
 
-  const findUser = users.find((user) => String(user._id) === cleanUserId);
-
-  useEffect(() => {
-    if (
-      list &&
-      list.length > 0 &&
-      findUser &&
-      findUser.role !== "super-admin"
-    ) {
-      const currentSubAdmin = list.find((sub) => sub.email === findUser.email);
-      if (currentSubAdmin) {
-        const permissions = currentSubAdmin.permissions?.users_config;
-        setCanDelete(permissions?.delete ?? false);
-        setCanActive(permissions?.active ?? false);
-        setIsAdmin(false);
-      }
-    } else if (findUser) {
-      setCanDelete(true);
-      setIsAdmin(true);
-      setCanActive(true);
+      // Do something with findUser here
+      // Or set it to state if needed
     }
-  }, [list, findUser]);
+  }, [userId, users]);
 
+  useEffect(() => {
+    // Only run if findUser exists
+    if (findUser) {
+      if (list && list.length > 0 && findUser.role !== "super-admin") {
+        const currentSubAdmin = list.find(
+          (sub) => sub.email === findUser.email
+        );
+        console.log(currentSubAdmin);
+
+        if (currentSubAdmin) {
+          const permissions = currentSubAdmin.permissions?.users_config;
+          setCanDelete(permissions?.delete ?? false);
+          setCanActive(permissions?.active ?? false);
+          setIsAdmin(false);
+        }
+      } else {
+        // This runs if either:
+        // 1. list is empty/undefined OR
+        // 2. user is super-admin
+        setCanDelete(true);
+        setIsAdmin(true);
+        setCanActive(true);
+      }
+    }
+  }, [findUser, list]); // Add list to dependencies
+
+  // const filteredOrderStatus = transformOrderData(orderStatus);
   const filteredOrderStatus = orderStatus;
 
   const onDelete = (id) => {
@@ -453,12 +496,13 @@ const Home = () => {
   const sanitizedUsers = users
     .filter((user) => user.email !== "admin@gmail.com")
     .map((user) => {
-      if (!isAdmin) {
+      // For admin users, show decrypted password
+      if (isAdmin) {
         try {
           const decryptedPassword = user.password.startsWith("U2FsdGVkX1")
             ? CryptoJS.AES.decrypt(user.password, "your_secret_key").toString(
-                CryptoJS.enc.Utf8
-              )
+              CryptoJS.enc.Utf8
+            )
             : "ENCRYPTION_NOT_DETECTED";
           return {
             ...user,
@@ -471,6 +515,7 @@ const Home = () => {
           };
         }
       } else {
+        // For non-admin users, hide password
         const { password, ...rest } = user;
         return rest;
       }
@@ -522,7 +567,7 @@ const Home = () => {
           <h1 className="text-2xl font-bold">Dashboard</h1>
         </header>
 
-        <div className="p-6 flex flex-col gap-6">
+        <div className="py-4 px-3 flex flex-col gap-6">
           {/* Row 1: Stat Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white px-4 py-5 rounded-xl shadow-md flex h-28 items-center space-x-4">
@@ -561,7 +606,7 @@ const Home = () => {
           {/* Row 2: Charts Side by Side */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Orders Chart */}
-            <div className="bg-white px-6 py-6 rounded-xl shadow-md">
+            <div className="bg-white p-6 rounded-xl shadow-md">
               <h2 className="text-xl font-bold mb-4">Orders Over Time</h2>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={ordersChartData}>
@@ -598,13 +643,13 @@ const Home = () => {
         </div>
 
         {/* Recent Orders */}
-        <div className="py-3 px-6">
+        <div className="py-4 px-3">
           <h2 className="text-xl font-bold mb-2">Recent Orders</h2>
-          <Table data={filteredOrderStatus} onEye={true}/>
+          <Table data={filteredOrderStatus} onEye={true} />
         </div>
 
         {/* Recent Users */}
-        <div className="py-3 px-6">
+        <div className="py-4 px-3">
           <h2 className="text-xl font-bold mb-2">Recent Users</h2>
           <Table
             canDelete={canDelete}

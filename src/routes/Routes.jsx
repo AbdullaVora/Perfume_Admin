@@ -16,6 +16,7 @@ import Addproduct from "../pages/Dashboard/Product/Addproduct";
 import Brand from "../pages/Dashboard/Product_Config/Brand";
 import Add_SubAdmin from "../pages/Dashboard/Sub_Admin/Add_SubAdmin";
 import AllSubAdmins from "../pages/Dashboard/AllSubAdmins/AllSubAdmins";
+import Stock from "../pages/Dashboard/stock/Stock";
 
 
 // import NotFound from "../pages/NotFound";
@@ -92,6 +93,10 @@ export const privateRoutes = [
   {
     path: "/AllSubAdmins",
     element: <AllSubAdmins />
+  },
+  {
+    path: "/stock",
+    element: <Stock />
   },
 ];
 

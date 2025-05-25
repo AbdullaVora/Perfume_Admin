@@ -22,7 +22,7 @@ const OrderStatus = () => {
   const [canCreate, setCanCreate] = useState(true);
   const [canActive, setCanActive] = useState(true);
   const [userId, setUserId] = useState();
-  
+
 
   const dispatch = useDispatch();
 
@@ -56,7 +56,58 @@ const OrderStatus = () => {
     });
   };
 
-  const filteredData = transformOrdersData(orderStatus)
+  // const transformOrderData = (orders) => {
+  //   console.log(orders)
+  //   return orders.flatMap(order =>
+  //     order.products.map(productItem => ({
+  //       id: productItem._id,
+  //       orderCode: order.orderCode,
+  //       userEmail: order.userEmail,
+  //       productName: productItem.product.name,
+  //       // productId: productItem.product._id,
+  //       // skuCode: productItem.product.skuCode,
+  //       // thumbnail: productItem.product.thumbnail,
+  //       // mainImage: productItem.product.main,
+  //       quantity: productItem.quantity,
+  //       orderStatus: productItem.orderStatus, // status of that specific product
+  //       // orderStatus: order.orderStatus,              // status of overall order
+  //       createdAt: order.createdAt,
+  //       isAction: order.isAction,
+  //       isOrderStatus: order.isOrderStatus,
+  //       status: order.status,
+  //     }))
+  //   );
+  // };
+
+  const transformOrderData = (orders) => {
+    if (!orders || !Array.isArray(orders)) return [];
+
+    return orders.flatMap(order => {
+      // Check if products exists and is an array
+      if (!order.products || !Array.isArray(order.products)) return [];
+
+      return order.products.map(productItem => {
+        // Add additional checks for productItem and productItem.product
+        const productName = productItem.product?.name || 'Unknown Product';
+
+        return {
+          id: productItem._id,
+          orderCode: order.orderCode,
+          image: productItem.product?.thumbnail,
+          productName: productName,
+          userEmail: order.userEmail,
+          quantity: productItem.quantity,
+          orderStatus: productItem.orderStatus,
+          createdAt: order.createdAt,
+          isAction: order.isAction,
+          isOrderStatus: order.isOrderStatus,
+          status: order.status,
+        };
+      });
+    });
+  };
+
+  const filteredData = transformOrderData(orderStatus)
 
 
   // Fetch categories when component mounts
@@ -104,8 +155,12 @@ const OrderStatus = () => {
   }, [list, findUser]);
 
   const onEdit = (id) => {
-    const EditData = orderStatus.find((cat) => cat._id === id);
-
+    const order = orderStatus[0]; // Get the order object
+    const EditData = {
+      ...order.products.find((data) => data._id === id), // Spread the found product data
+      orderCode: order.orderCode // Add the orderCode from the order
+    };
+    console.log(EditData)
     if (EditData) {
       setEditData(EditData);
       setIsEdit(true);

@@ -48,7 +48,7 @@ export const updateOrderStatus = createAsyncThunk("orderStatus/update", async ({
 // ✅ Delete an Order Status
 export const deleteOrderStatus = createAsyncThunk("orderStatus/delete", async (id, { rejectWithValue }) => {
     try {
-        await api.delete(`${API_URL}/deleteOrderStatus/${id}`);
+        await api.delete(`${API_URL}/deleteOrder/${id}`);
         return id; // Return ID to remove from Redux state
     } catch (error) {
         return rejectWithValue(error.response?.data || "Failed to delete order status");

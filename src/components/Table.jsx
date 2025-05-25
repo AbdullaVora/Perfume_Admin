@@ -702,14 +702,14 @@ const Table = ({
   canActive,
   onEye,
 }) => {
-  // console.log(data);
+  console.log(data);
   // Ensure data is always an array
   const safeData = Array.isArray(data) ? data : [];
 
   const [filteredData, setFilteredData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [status, setStatus] = useState({});
-  const [limit, setLimit] = useState(10); // Default limit
+  const [limit, setLimit] = useState(50); // Default limit
   const [sortCriteria, setSortCriteria] = useState("latest"); // Default sorting criteria
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
@@ -722,7 +722,7 @@ const Table = ({
       const statusObj = {};
       console.log(data);
       data.forEach((row, index) => {
-        const id = row._id || `row-${index}`;
+        const id = row._id || row.id || `row-${index}`;
         statusObj[id] = row.status || false;
       });
       setStatus(statusObj);
@@ -822,6 +822,8 @@ const Table = ({
   }, [isInvoiceOpen]);
 
   const handleEdit = (id) => {
+    console.log(data)
+    console.log(id)
     if (onEdit) onEdit(id);
     console.log("Edit clicked for ID:", id);
   };
@@ -937,6 +939,9 @@ const Table = ({
     "isInquiry",
     "isUser",
     "isOrders",
+    "daysActive",
+    "id",
+    "isStock",
     "__v",
   ];
 
@@ -951,24 +956,32 @@ const Table = ({
   const allColumns =
     safeData.length > 0
       ? Object.keys(safeData[0]).filter(
-          (column) => !reservedFields.includes(column)
-        )
+        (column) => !reservedFields.includes(column))
       : [];
 
-  // Reorder columns to put productNames in position 3
-  // Reorder columns to put productNames in position 3 and quantity right after
+  // Start with image first if it exists
   const reorderedColumns = [...allColumns];
-  const productNamesIndex = reorderedColumns.indexOf("productNames");
+  const imageIndex = reorderedColumns.indexOf("image");
+
+  // Move image to first position if it exists
+  if (imageIndex > -1) {
+    reorderedColumns.splice(imageIndex, 1);
+    reorderedColumns.unshift("image");
+  }
+
+  // Then handle productName and quantity positioning
+  const productNamesIndex = reorderedColumns.indexOf("productName");
   const quantityIndex = reorderedColumns.indexOf("quantity");
 
-  // First move productNames to position 2 (will be 3rd column after Sr No.)
+  // Move productNames to position 3 (index 2, after Sr No. and image)
   if (productNamesIndex > -1 && reorderedColumns.length > 2) {
     reorderedColumns.splice(productNamesIndex, 1);
-    reorderedColumns.splice(2, 0, "productNames");
+    // Insert at position 2 (will be 3rd column after Sr No. and image)
+    reorderedColumns.splice(2, 0, "productName");
   }
 
   // Then move quantity right after productNames if it exists
-  if (quantityIndex > -1 && reorderedColumns.includes("productNames")) {
+  if (quantityIndex > -1 && reorderedColumns.includes("productName")) {
     // Remove quantity from its current position
     const newQuantityIndex = reorderedColumns.indexOf("quantity");
     if (newQuantityIndex > -1) {
@@ -976,7 +989,7 @@ const Table = ({
     }
 
     // Find productNames position and insert quantity after it
-    const afterProductNamesPos = reorderedColumns.indexOf("productNames") + 1;
+    const afterProductNamesPos = reorderedColumns.indexOf("productName") + 1;
     reorderedColumns.splice(afterProductNamesPos, 0, "quantity");
   }
   // console.log("Columns to display:", columns);
@@ -1013,19 +1026,15 @@ const Table = ({
         <img
           src={value}
           alt={column}
-          className={`${
-            row.isSlider ? "w-150 h-50 rounded-md" : "w-15 h-15 rounded-full"
-          } ${
-            column === "desktopImage"
+          className={`${row.isSlider ? "w-150 h-50 rounded-md" : "w-15 h-15 rounded-full"
+            } ${column === "desktopImage"
               ? "w-120 h-30 rounded-md"
               : "w-15 h-15 rounded-full"
-          } ${
-            column === "mobileImage"
+            } ${column === "mobileImage"
               ? "w-60 h-45 rounded-md"
               : "w-15 h-15 rounded-full"
-          } ${
-            column === "icon" ? "rounded-md" : "w-15 h-15 rounded-full"
-          } object-cover`}
+            } ${column === "icon" ? "rounded-md" : "w-15 h-15 rounded-full"
+            } object-cover`}
         />
       );
     } else if (typeof value === "string" && value.startsWith("http")) {
@@ -1062,7 +1071,7 @@ const Table = ({
       // Special handling for productNames
       if (!value) return "N/A";
 
-      const isExpanded = expandedRow === row._id;
+      const isExpanded = expandedRow === row._id || row.id;
       let displayValue = String(value);
 
       // For array values, handle specially
@@ -1078,7 +1087,7 @@ const Table = ({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                toggleExpandRow(row._id);
+                toggleExpandRow(row._id || row.id);
               }}
               className="absolute bottom-0 right-0 text-blue-500 hover:text-blue-700 text-xs"
             >
@@ -1100,7 +1109,7 @@ const Table = ({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                toggleExpandRow(row._id);
+                toggleExpandRow(row._id || row.id);
               }}
               className="text-blue-500 hover:text-blue-700 text-xs"
             >
@@ -1139,6 +1148,7 @@ const Table = ({
           safeData[0].isBrand ||
           safeData[0].isSubAdmin ||
           safeData[0].isInquiry ||
+          safeData[0].isStock ||
           safeData[0].isUser) && (
           <div className="px-4 py-3 bg-gray-50 rounded-2xl border-gray-200 flex justify-between items-center">
             <div className="relative w-64 mx-1">
@@ -1179,9 +1189,8 @@ const Table = ({
         )}
 
       <div
-        className={`overflow-x-auto rounded-xl w-full shadow-lg ${
-          isOrderScroll ? "max-w-[1668px] table-responsive overflow-x-auto" : ""
-        }`}
+        className={`overflow-x-auto rounded-xl w-full shadow-lg ${isOrderScroll ? "max-w-[1259px] table-responsive overflow-x-auto" : ""
+          }`}
       >
         {/* Invoice Modal */}
         {isInvoiceOpen && (
@@ -1274,9 +1283,8 @@ const Table = ({
                   {reorderedColumns.map((column) => (
                     <td
                       key={column}
-                      className={`py-3 px-6 ${
-                        isOrderScroll ? "whitespace-nowrap" : ""
-                      }`}
+                      className={`py-3 px-6 ${isOrderScroll ? "whitespace-nowrap" : ""
+                        }`}
                     >
                       {renderCellContent(row, column)}
                     </td>
@@ -1285,30 +1293,30 @@ const Table = ({
                     hasActionColumn &&
                     (canActive || canDelete || canEdit || onEye) && (
                       <td
-                        className={`py-3 px-6 flex items-center space-x-3 ${
-                          row.isCoupon ||
-                          row.isCategory ||
-                          row.isOrderStatus ||
-                          row.isPayment ||
-                          row.isShippingPartner ||
-                          row.isSocial ||
-                          row.isBrand ||
-                          row.isVariant ||
-                          row.isSubAdmin ||
-                          row.isInquiry ||
-                          row.isOrders ||
-                          row.isUser
+                        className={`${row.image ? "py-8" : "py-3"} px-6 flex items-center space-x-3 ${row.isCoupon ||
+                            row.isCategory ||
+                            row.isOrderStatus ||
+                            row.isPayment ||
+                            row.isShippingPartner ||
+                            row.isSocial ||
+                            row.isBrand ||
+                            row.isVariant ||
+                            row.isSubAdmin ||
+                            row.isInquiry ||
+                            row.isOrders ||
+                            row.isStock ||
+                            row.isUser
                             ? "my-2"
                             : row.isBanner
-                            ? "my-[48%]"
-                            : "my-[52%]"
-                        }`}
+                              ? "my-[48%]"
+                              : "my-[52%]"
+                          }`}
                       >
                         {canEdit && (
                           <button
                             className="text-gray-600 hover:text-blue-600 transition-colors duration-200 p-2 rounded-full hover:bg-blue-100"
                             onClick={() =>
-                              handleEdit(row._id || `row-${index}`)
+                              handleEdit(row._id || row.id || `row-${index}`)
                             }
                           >
                             <svg
@@ -1331,7 +1339,7 @@ const Table = ({
                           <button
                             className="text-gray-600 hover:text-red-600 transition-colors duration-200 p-2 rounded-full hover:bg-red-100"
                             onClick={() =>
-                              handleDelete(row._id || `row-${index}`)
+                              handleDelete(row._id || row.id || `row-${index}`)
                             }
                           >
                             <svg
@@ -1357,7 +1365,7 @@ const Table = ({
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                handleView(row._id);
+                                handleView(row._id || row.id);
                               }} // Pass the current row data
                             >
                               <FaEye className="h-5 w-5" />
@@ -1369,24 +1377,22 @@ const Table = ({
                             <input
                               type="checkbox"
                               className="sr-only peer"
-                              checked={!!status[row._id || `row-${index}`]}
+                              checked={!!status[row._id || row.id || `row-${index}`]}
                               onChange={() =>
-                                handleToggleStatus(row._id || `row-${index}`)
+                                handleToggleStatus(row._id || row.id || `row-${index}`)
                               }
                             />
                             <div
-                              className={`w-10 h-5 rounded-full relative transition-all ${
-                                status[row._id || `row-${index}`]
+                              className={`w-10 h-5 rounded-full relative transition-all ${status[row._id || row.id || `row-${index}`]
                                   ? "bg-green-500"
                                   : "bg-gray-300"
-                              }`}
+                                }`}
                             >
                               <div
-                                className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${
-                                  status[row._id || `row-${index}`]
+                                className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${status[row._id || row.id || `row-${index}`]
                                     ? "left-6"
                                     : "left-1"
-                                }`}
+                                  }`}
                               ></div>
                             </div>
                           </label>

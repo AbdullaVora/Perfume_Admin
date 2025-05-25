@@ -306,11 +306,12 @@
 
 // export default AllOrders;
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Table from "../../../components/Table";
 // import todayOrdersData from "../../../../data/allOrders.json";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchOrders } from "../../../redux/slices/Dashboard/Order_Config/orderStatusSlice";
+import { all } from "axios";
 
 const AllOrders = () => {
   // const [orders, setOrders] = useState(todayOrdersData);
@@ -320,16 +321,46 @@ const AllOrders = () => {
   const [toDate, setToDate] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [customerFilter, setCustomerFilter] = useState("");
+  const [finalData, setFinalData] = useState([])
 
   const isOrderScroll = true;
 
   const dispatch = useDispatch();
 
-  const {
-    allOrders,
-    loading: orderLoading,
-    error,
-  } = useSelector((state) => state.orderStatus);
+  const { allOrders, loading: orderLoading, error } = useSelector((state) => state.orderStatus);
+
+  const flattenOrders = (orders) => {
+    const result = [];
+
+    orders.forEach((order) => {
+      order.products.forEach((item) => {
+        result.push({
+          id: order._id,
+          orderCode: order.orderCode,
+          userEmail: order.userEmail,
+          billingDetail: order.billingDetail,
+          shippingDetail: order.shippingDetail,
+          paymentMethod: order.paymentMethod,
+          orderStatus: item.orderStatus, // use product-specific status
+          amount: order.amount,
+          shippingFees: order.shippingFees,
+          productName: item.product.name,
+          skuCode: item.product.skuCode,
+          image: item.product.thumbnail,
+          quantity: item.quantity,
+          createdAt: order.createdAt,
+          updatedAt: order.updatedAt,
+        });
+      });
+    });
+
+    return result;
+  };
+
+  useEffect(() => {
+    setFinalData(flattenOrders(allOrders))
+  }, [allOrders])
+
 
   // Transform orders data to include product names at the top level
   const transformOrdersData = (orders) => {
@@ -353,8 +384,11 @@ const AllOrders = () => {
     });
   };
 
+
+
   // Handle search functionality
-  const filteredOrders = transformOrdersData(allOrders)
+  // const filteredOrders = transformOrdersData(finalData)
+  const filteredOrders = finalData
     .filter(
       (order) =>
         order.amount.toString().includes(searchTerm.toLowerCase()) || // Convert number to string
@@ -420,7 +454,7 @@ const AllOrders = () => {
         </header>
 
         {/* Filters Section */}
-        <div className="bg-white shadow-md rounded-lg p-4 mt-4">
+        <div className="bg-white shadow-md rounded-lg p-4 mt-4 mx-3">
           <div className="grid grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium">From Date</label>
@@ -470,7 +504,7 @@ const AllOrders = () => {
         </div>
 
         {/* Orders Table */}
-        <div className="bg-white shadow-md rounded-lg p-4 mt-4">
+        <div className="bg-white shadow-md rounded-lg p-4 mt-4 mx-3">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold">Today's Orders</h2>
 
