@@ -1701,7 +1701,7 @@ const Table = ({
     "status", "sliderCategory", "sliderSubcategory", "bannerCategory",
     "bannerSubcategory", "brand", "title", "subTitle", "description",
     "userId", "products", "permissions", "isSubAdmin", "role",
-    "isInquiry", "isUser", "isOrders", "daysActive", "id", "isStock", "__v"
+    "isInquiry", "isUser", "isOrders", "daysActive", "id", "isStock", "inquiry", "isEmail", "__v"
   ];
 
   const allColumns = safeData.length > 0
@@ -1830,6 +1830,7 @@ const Table = ({
       );
     } else if (
       column === "createdAt" ||
+      column === "sentAt" ||
       column === "updatedAt" ||
       column === "orderDate"
     ) {
@@ -1920,6 +1921,7 @@ const Table = ({
           safeData[0].isSubAdmin ||
           safeData[0].isInquiry ||
           safeData[0].isStock ||
+          safeData[0].isEmail ||
           safeData[0].isUser) && (
           <div className="px-4 py-3 bg-gray-50 rounded-2xl border-gray-200 flex justify-between items-center">
             <div className="relative w-64 mx-1">
@@ -2056,6 +2058,7 @@ const Table = ({
                           row.isInquiry ||
                           row.isOrders ||
                           row.isStock ||
+                          row.isEmail ||
                           row.isUser
                           ? "my-2"
                           : row.isBanner

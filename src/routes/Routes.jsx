@@ -17,6 +17,7 @@ import Brand from "../pages/Dashboard/Product_Config/Brand";
 import Add_SubAdmin from "../pages/Dashboard/Sub_Admin/Add_SubAdmin";
 import AllSubAdmins from "../pages/Dashboard/AllSubAdmins/AllSubAdmins";
 import Stock from "../pages/Dashboard/Stock/Stock";
+import InquiryEmail from "../pages/Dashboard/InquiryEmial/InquiryEmail";
 
 
 // import NotFound from "../pages/NotFound";
@@ -100,7 +101,7 @@ export const privateRoutes = [
   },
   {
     path: "/inquiry-emails",
-    element: <Stock />
+    element: <InquiryEmail />
   }
 ];
 

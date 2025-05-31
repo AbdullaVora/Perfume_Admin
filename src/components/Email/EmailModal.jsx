@@ -132,6 +132,7 @@ import { FaEnvelope, FaFile } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 
 const EmailModal = ({ inquiry, onClose, onSend }) => {
+    console.log(inquiry);
     const [emailData, setEmailData] = useState({
         subject: `Re: ${inquiry.subject || "Your Inquiry"}`,
         message: "",
@@ -155,6 +156,7 @@ const EmailModal = ({ inquiry, onClose, onSend }) => {
                 subject: emailData.subject,
                 text: emailData.message,
                 inquiryId: inquiry._id,
+                mobile: inquiry.phone,
             });
             toast.success("Email sent successfully!", { className: "custom-toast" });
             setTimeout(() => {
