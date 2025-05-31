@@ -88,6 +88,7 @@ const Product_Inquiry = () => {
               canDelete={canDelete}
               canActive={canActive}
               canEdit={canEdit}
+              canEmail={true}
               onDelete={onDelete}
               data={data}
             />

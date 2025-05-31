@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaCameraRetro, FaRupeeSign } from 'react-icons/fa';
+import { FaCameraRetro, FaPlay, FaRupeeSign } from 'react-icons/fa';
 import { BiPackage } from 'react-icons/bi';
 import { LuPackagePlus } from 'react-icons/lu';
 import { IoMdClose } from 'react-icons/io';
@@ -31,6 +31,13 @@ const Addproduct = () => {
   // State for details and additional rows
   const [details, setDetails] = useState([{ title: '', value: '' }]);
   const [additional, setAdditional] = useState([{ title: '', value: '' }]);
+
+  // State for images
+  const [images, setImages] = useState([]);
+
+  // State for videos
+  const [videos, setVideos] = useState([]);
+  const [mainVideo, setMainVideo] = useState(null);
 
   // State for inventory and pricing
   const [mrp, setMrp] = useState(0);
@@ -88,7 +95,9 @@ const Addproduct = () => {
 
   const fetchEditData = (id) => {
     const data = products.find((product) => product._id === id);
+
     if (data) {
+      console.log(data, "data")
       setEditData(data);
       setIsEditing(true);
       populateFormData(data);
@@ -126,43 +135,46 @@ const Addproduct = () => {
 
   const populateFormData = (data) => {
     console.log(data)
-    setName(data.name || '');
-    setSlug(data.slug || '');
-    setSkuCode(data.skuCode || '');
-    setSelectedCategory(data.category.name || '');
-    setSelectedBrandCategory(data.brandCategory.name || '');
-    setForPage(data.forPage || '');
-    setForSection(data.forSection || '');
-    setSelectedBrand(data.brand.name || ''); // Load brand
-    setSelectedSubcategory(data.subcategory.name || '');
-    setDescription(data.description || '');
+    setName(data?.name || '');
+    setSlug(data?.slug || '');
+    setSkuCode(data?.skuCode || '');
+    setSelectedCategory(data?.category?.name || '');
+    setSelectedBrandCategory(data?.brandCategory?.name || '');
+    setForPage(data?.forPage || '');
+    setForSection(data?.forSection || '');
+    setSelectedBrand(data?.brand?.name || ''); // Load brand
+    setSelectedSubcategory(data?.subcategory?.name || '');
+    setDescription(data?.description || '');
 
     // Set details - ensure it's always an array with at least one item
     setDetails(
-      data.details.details && data.details.details.length > 0
-        ? data.details.details
+      data?.details?.details?.length > 0
+        ? data?.details?.details
         : [{ title: '', value: '' }]
     );
 
     console.log(details)
     // Set additional info - ensure it's always an array with at least one item
     setAdditional(
-      data.additional.additional && data.additional.additional.length > 0
-        ? data.additional.additional
+      data?.additional?.additional?.length > 0
+        ? data?.additional?.additional
         : [{ title: '', value: '' }]
     );
 
-    setMrp(data.mrp || 0);
-    setPrice(data.price || 0);
-    setDiscount(data.discount || 0);
-    setMain(data.main || null);
-    setStockManagement(data.stockManagement || false);
-    setThumbnail(data.thumbnail || null);
-    setImages(data.images || []);
+
+    setMrp(data?.mrp || 0);
+    setPrice(data?.price || 0);
+    setDiscount(data?.discount || 0);
+    setMainMedia(data?.main || null);
+    setStockManagement(data?.stockManagement || false);
+    setThumbnail(data?.thumbnail || null);
+    setImages(data?.images || []);
+    setVideos(data?.videos || []);
+
 
     // Set variants if they exist
-    if (data.variants.variants && data.variants.variants.length > 0) {
-      const formattedVariants = data.variants.variants.map(variant => {
+    if (data?.variants?.variants?.length > 0) {
+      const formattedVariants = data?.variants?.variants.map(variant => {
         // For existing data, we might need to handle different structures
         const firstData = variant.data?.[0] || {};
 
@@ -183,12 +195,12 @@ const Addproduct = () => {
     }
   };
 
+  console.log(images, "images")
+
   const [selectedParentVariant, setSelectedParentVariant] = useState('');
   const [selectedChildVariant, setSelectedChildVariant] = useState('');
   const [selectedVariants, setSelectedVariants] = useState([]);
 
-  // State for images
-  const [images, setImages] = useState([]);
 
   // Filter categories based on status and parent
   const filteredCategories = categories.filter((cat) => cat.status === true && cat.parent === 'N/A');
@@ -264,133 +276,87 @@ const Addproduct = () => {
     });
   };
 
-  // const handleThumbnailUpload = async (file) => {
-  //   try {
-  //     let imageUrl;
-  //     if (typeof file === 'string') {
-  //       imageUrl = file;
-  //     } else if (file) {
-  //       imageUrl = await convertToBase64(file);
-  //     } else {
-  //       setThumbnail(null);
-  //       return;
-  //     }
 
-  //     setThumbnail(imageUrl);
+  // Update state declarations
+  const [mainMedia, setMainMedia] = useState(null); // Can be either image or video
 
-  //     // Remove from images array if it exists there
-  //     setImages(prev => prev.filter(img => img !== imageUrl));
-  //   } catch (error) {
-  //     console.error("Error processing thumbnail:", error);
-  //     toast.error("Failed to process thumbnail image");
-  //   }
-  // };
+  // Update the handleMainUpload function
+  const handleMainUpload = (mediaUrl, type) => {
+    setMainMedia({ url: mediaUrl, type });
+  };
 
-  // const handleMainUpload = async (file) => {
-  //   try {
-  //     let imageUrl;
-  //     if (typeof file === 'string') {
-  //       imageUrl = file;
-  //     } else if (file) {
-  //       imageUrl = await convertToBase64(file);
-  //     } else {
-  //       setMain(null);
-  //       return;
-  //     }
-
-  //     setMain(imageUrl);
-
-  //     // Remove from images array if it exists there
-  //     setImages(prev => prev.filter(img => img !== imageUrl));
-  //   } catch (error) {
-  //     console.error("Error processing main:", error);
-  //     toast.error("Failed to process main image");
-  //   }
-  // };
-
-  // // Handle image upload
-  // const handleImageUpload = async (e) => {
-  //   try {
-  //     const files = Array.from(e.target.files);
-  //     const base64Images = [];
-
-  //     for (const file of files) {
-  //       const base64 = await convertToBase64(file);
-  //       // Only add to images array if not already thumbnail or main
-  //       // if (base64 !== thumbnail && base64 !== main) {
-  //       //   base64Images.push(base64);
-  //       // }
-  //       base64Images.push(base64);
-
-  //     }
-
-  //     setImages([...images, ...base64Images]);
-  //   } catch (error) {
-  //     console.error("Error converting images to base64:", error);
-  //     toast.error("Failed to process images");
-  //   }
-  // };
-
-  // // Remove an image
-  // const removeImage = (index) => {
-  //   const imageToRemove = images[index];
-  //   const newImages = images.filter((_, i) => i !== index);
-  //   setImages(newImages);
-
-  //   // If the removed image was the thumbnail, clear the thumbnail
-  //   if (thumbnail === imageToRemove) {
-  //     setThumbnail(null);
-  //   }
-
-  //   if (main === imageToRemove) {
-  //     setMain(null);
-  //   }
-  // };
-
-  const handleImageUpload = async (e) => {
+  // Update the file upload handler
+  // Update the file upload handler
+  const handleFileUpload = async (e) => {
     try {
       const files = Array.from(e.target.files);
       if (files.length === 0) return;
 
-      const newImages = [];
+      const newMedia = [];
 
       for (const file of files) {
         const base64 = await convertToBase64(file);
 
-        // Check if image already exists in any of the states
-        const isDuplicate =
-          base64 === thumbnail ||
-          base64 === main ||
-          images.some(img => img === base64);
-
-        if (!isDuplicate) {
-          newImages.push(base64);
-        }
+        newMedia.push({
+          url: base64,
+          file: file,
+          type: file.type.startsWith('video/') ? 'video' : 'image'
+        });
       }
 
-      if (newImages.length > 0) {
+      if (newMedia.length > 0) {
+        const newImages = newMedia.filter(item => item.type === 'image');
+        const newVideos = newMedia.filter(item => item.type === 'video');
+
         setImages(prev => [...prev, ...newImages]);
+        setVideos(prev => [...prev, ...newVideos]);
 
-        // If no thumbnail is set, use the first image as thumbnail
+        // Set first image as thumbnail if no thumbnail exists
         if (!thumbnail && newImages.length > 0) {
-          handleThumbnailUpload(newImages[0]);
+          handleThumbnailUpload(newImages[0].url);
         }
 
-        // If no main image is set, use the first image as main
-        if (!main && newImages.length > 0) {
-          handleMainUpload(newImages[0]);
+        // Set first media as main if no main exists
+        if (!mainMedia && newMedia.length > 0) {
+          handleMainUpload(newMedia[0].url, newMedia[0].type);
         }
 
-        toast.success(`${newImages.length} new images added`);
-      } else {
-        toast.warning("No new images were added (duplicates skipped)");
+        toast.success(`${newMedia.length} files added`);
       }
     } catch (error) {
-      console.error("Error converting images to base64:", error);
-      toast.error("Failed to process images");
+      console.error("Error processing files:", error);
+      toast.error("Failed to process files");
     }
   };
-  
+
+  // Update the removeImage function
+  const removeImage = (index) => {
+    const imageToRemove = images[index];
+    const newImages = images.filter((_, i) => i !== index);
+    setImages(newImages);
+
+    // If removed image was the thumbnail, clear thumbnail
+    if (thumbnail === imageToRemove.url) {
+      setThumbnail(null);
+    }
+
+    // If removed image was the main media, clear main
+    if (mainMedia && mainMedia.type === 'image' && mainMedia.url === imageToRemove.url) {
+      setMainMedia(null);
+    }
+  };
+
+  const removeVideo = (index) => {
+    const videoToRemove = videos[index];
+    const newVideos = videos.filter((_, i) => i !== index);
+    setVideos(newVideos);
+
+    // If removed video was the main media, clear main
+    if (mainMedia && mainMedia.type === 'video' && mainMedia.url === videoToRemove.url) {
+      setMainMedia(null);
+    }
+  };
+
   const handleThumbnailUpload = (image) => {
     // Don't do anything if this is already the thumbnail
     if (thumbnail === image) return;
@@ -403,28 +369,31 @@ const Addproduct = () => {
     toast.success("Thumbnail image set");
   };
 
-  const handleMainUpload = (image) => {
-    // Don't do anything if this is already the main image
-    if (main === image) return;
+  // const handleMainUpload = (image) => {
+  //   // Don't do anything if this is already the main image
+  //   if (main === image) return;
 
-    setMain(image);
+  //   setMain(image);
 
-    // Remove from images array if it exists there
-    setImages(prev => prev.filter(img => img !== image));
+  //   // Remove from images array if it exists there
+  //   setImages(prev => prev.filter(img => img !== image));
 
-    toast.success("Main image set");
-  };
+  //   toast.success("Main image set");
+  // };
 
-  const removeImage = (index) => {
-    const imageToRemove = images[index];
+  // const removeImage = (index) => {
+  //   const imageToRemove = images[index];
 
-    // Remove from images array
-    const newImages = images.filter((_, i) => i !== index);
-    setImages(newImages);
+  //   // Remove from images array
+  //   const newImages = images.filter((_, i) => i !== index);
+  //   setImages(newImages);
 
-    toast.success("Image removed");
-  };
+  //   toast.success("Image removed");
+  // };
   // Handle form submission
+
+
+
   const handleSubmit = async () => {
     // Validate required fields
     if (!name || !slug || !skuCode || !brand || !selectedCategory || !selectedSubcategory) {
@@ -445,10 +414,24 @@ const Addproduct = () => {
     }
 
     // Validate main is selected
-    if (!main) {
-      toast.error("Please select a main image");
-      return;
+    // if (!main) {
+    //   toast.error("Please select a main image");
+    //   return;
+    // }
+
+    const normalizeImages = (images) => {
+      return images
+        .map(image => {
+          if (typeof image === "string") {
+            return image;
+          } else if (image && typeof image === "object" && "url" in image) {
+            return image.url;
+          }
+          return null; // Optional: handle unexpected entries
+        })
+        .filter(Boolean); // Removes null or undefined
     }
+
 
     const formData = {
       name,
@@ -466,9 +449,12 @@ const Addproduct = () => {
       discount,
       stockManagement,
       variants: selectedVariants,
-      images,
+      images: normalizeImages(images), // Assuming images are stored as URLs
       thumbnail,
       main,
+      mainMedia: (mainMedia && mainMedia.url) ? mainMedia.url : mainMedia, // Use mainMedia state
+      // mainVide,
+      videos: videos.map(video => video.url), // Assuming videos are stored as URLs
       forPage,
       forSection
     };
@@ -1096,8 +1082,8 @@ const Addproduct = () => {
         </div>
 
         {/* Product Image Section */}
-        <div className="px-6 py-3">
-          <div className="bg-white rounded-lg shadow-md">
+        {/* <div className="px-6 py-3"> */}
+        {/* <div className="bg-white rounded-lg shadow-md">
             <div className="flex gap-8">
               <div className="flex flex-col bg-gray-50 justify-start p-5 rounded-lg w-[250px] items-start shadow-md">
                 <div className="rounded-lg">
@@ -1122,10 +1108,10 @@ const Addproduct = () => {
                     className="hidden"
                   />
                 </div>
-              </div>
+              </div> */}
 
-              {/* Right Side - Image Upload Area */}
-              {/* <div className="flex-1 pe-6 py-6">
+        {/* Right Side - Image Upload Area */}
+        {/* <div className="flex-1 pe-6 py-6">
 
                 {thumbnail && (
                   <div className="mb-6">
@@ -1175,7 +1161,7 @@ const Addproduct = () => {
                   ))}
                 </div>
               </div> */}
-              {/* <div className="flex-1 pe-6 py-6">
+        {/* <div className="flex-1 pe-6 py-6">
 
                 {thumbnail && (
                   <div className="mb-6">
@@ -1252,8 +1238,8 @@ const Addproduct = () => {
                   ))}
                 </div>
               </div> */}
-              <div className="flex-1 pe-6 py-6">
-                {/* Thumbnail Preview (if exists) */}
+        {/* Thumbnail Preview (if exists) */}
+        {/* <div className="flex-1 pe-6 py-6">
                 {thumbnail && (
                   <div className="mb-6">
                     <h3 className="text-gray-700 text-lg font-medium mb-2">Thumbnail Preview</h3>
@@ -1271,10 +1257,10 @@ const Addproduct = () => {
                       </button>
                     </div>
                   </div>
-                )}
+                )} */}
 
-                {/* Main Image Preview (if exists) */}
-                {main && main !== thumbnail && (
+        {/* Main Image Preview (if exists) */}
+        {/* {main && main !== thumbnail && (
                   <div className="mb-6">
                     <h3 className="text-gray-700 text-lg font-medium mb-2">Main Image Preview</h3>
                     <div className="border border-gray-200 p-4 rounded-lg relative w-[500px]">
@@ -1291,10 +1277,10 @@ const Addproduct = () => {
                       </button>
                     </div>
                   </div>
-                )}
+                )} */}
 
-                {/* Additional Images Grid */}
-                <h3 className="text-gray-700 text-lg font-medium mb-2">Additional Images</h3>
+        {/* Additional Images Grid */}
+        {/* <h3 className="text-gray-700 text-lg font-medium mb-2">Additional Images</h3>
                 {images.length > 0 ? (
                   <div className="grid grid-cols-2 gap-4">
                     {images.map((image, index) => (
@@ -1337,7 +1323,293 @@ const Addproduct = () => {
               </div>
             </div>
           </div>
+        </div> */}
+
+        <div className="px-6 py-3">
+          <div className="bg-white rounded-lg shadow-md">
+            <div className="flex gap-8">
+              <div className="flex flex-col bg-gray-50 justify-start p-5 rounded-lg w-[250px] items-start shadow-md">
+                <div className="rounded-lg">
+                  <FaCameraRetro size={120} className="text-gray-600" />
+                </div>
+                <div className="mt-4">
+                  <h2 className="text-gray-800 text-xl font-bold">Product Media</h2>
+                  <p className="text-gray-600 text-sm mt-2">
+                    Upload your product images and videos.
+                  </p>
+                  <label
+                    htmlFor="fileInput"
+                    className="bg-blue-600 text-white rounded-md text-center block hover:bg-blue-700 mt-4 w-[220px] py-2 cursor-pointer"
+                  >
+                    Upload Files
+                  </label>
+                  <input
+                    type="file"
+                    id="fileInput"
+                    multiple
+                    accept="image/*,video/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                </div>
+              </div>
+
+              <div className="flex-1 pe-6 py-6">
+                {/* Thumbnail Preview (image only) */}
+                {thumbnail && (
+                  <div className="mb-6">
+                    <h3 className="text-gray-700 text-lg font-medium mb-2">Thumbnail Preview</h3>
+                    <div className="border border-gray-200 p-4 rounded-lg relative w-[500px]">
+                      <img
+                        src={thumbnail}
+                        alt="Thumbnail preview"
+                        className="w-[500px] h-[200px] rounded-lg object-cover"
+                      />
+                      <button
+                        onClick={() => setThumbnail(null)}
+                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"
+                      >
+                        <IoMdClose size={16} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {/* Main Image Preview */}
+                {/* {main && main !== thumbnail && (
+                  <div className="mb-6">
+                    <h3 className="text-gray-700 text-lg font-medium mb-2">Main Image Preview</h3>
+                    <div className="border border-gray-200 p-4 rounded-lg relative w-[500px]">
+                      <img
+                        src={main}
+                        alt="Main image preview"
+                        className="w-[500px] h-[200px] rounded-lg object-cover"
+                      />
+                      <button
+                        onClick={() => setMain(null)}
+                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"
+                      >
+                        <IoMdClose size={16} />
+                      </button>
+                    </div>
+                  </div>
+                )} */}
+
+                {/* Main Video Preview */}
+
+                {/* {mainVideo && (
+                  <div className="mb-6">
+                    <h3 className="text-gray-700 text-lg font-medium mb-2">Main Video Preview</h3>
+                    <div className="border border-gray-200 p-4 rounded-lg relative w-[500px]">
+                      <div className="relative w-[500px] h-[200px] bg-black rounded-lg flex items-center justify-center">
+                        <video className="w-full h-full object-contain" controls>
+                          <source src={mainVideo} type="video/mp4" />
+                        </video>
+                      </div>
+                      <button
+                        onClick={() => setMainVideo(null)}
+                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"
+                      >
+                        <IoMdClose size={16} />
+                      </button>
+                    </div>
+                  </div>
+                )} */}
+                {/* Additional Images Grid */}
+                {/* <h3 className="text-gray-700 text-lg font-medium mb-2">Additional Images</h3>
+                {images.length > 0 ? (
+                  <div className="grid grid-cols-2 gap-4">
+                    {images.map((image, index) => (
+                      <div key={index} className="border border-gray-200 p-4 rounded-lg relative">
+                        <div className="aspect-h-9 aspect-w-16 mb-2">
+                          <img
+                            src={image.url}
+                            alt="Product preview"
+                            className="h-48 rounded-lg w-full object-cover"
+                          />
+                        </div>
+                        <div className="flex flex-wrap justify-between items-center gap-2">
+                          <button
+                            onClick={() => removeImage(index)}
+                            className="text-red-600 text-sm hover:text-red-700"
+                          >
+                            Remove
+                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleThumbnailUpload(image.url)}
+                              className={`text-sm px-2 py-1 rounded ${thumbnail === image.url ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+                            >
+                              {thumbnail === image.url ? 'Thumbnail' : 'Set as Thumbnail'}
+                            </button>
+                            <button
+                              onClick={() => handleMainUpload(image.url)}
+                              className={`text-sm px-3 py-1 rounded ${main === image.url ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+                            >
+                              {main === image.url ? 'Main Image' : 'Set as Main'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">No additional images uploaded yet</p>
+                )} */}
+
+                {/* Additional Videos Grid */}
+                {/* <h3 className="text-gray-700 text-lg font-medium mt-6 mb-2">Additional Videos</h3>
+                {videos.length > 0 ? (
+                  <div className="grid grid-cols-2 gap-4">
+                    {videos.map((video, index) => (
+                      <div key={index} className="border border-gray-200 p-4 rounded-lg relative">
+                        <div className="relative w-full h-48 bg-black rounded-lg mb-2 flex items-center justify-center">
+                          <video className="w-full h-full object-contain">
+                            <source src={video.url} type="video/mp4" />
+                          </video>
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <FaPlay className="text-white text-2xl" />
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap justify-between items-center gap-2">
+                          <button
+                            onClick={() => removeVideo(index)}
+                            className="text-red-600 text-sm hover:text-red-700"
+                          >
+                            Remove
+                          </button>
+                          <button
+                            onClick={() => handleMainVideoUpload(video.url)}
+                            className={`text-sm px-3 py-1 rounded ${mainVideo === video.url ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+                          >
+                            {mainVideo === video.url ? 'Main Video' : 'Set as Main Video'}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">No additional videos uploaded yet</p>
+                )} */}
+
+                {mainMedia && (
+                  <div className="mb-6">
+                    <h3 className="text-gray-700 text-lg font-medium mb-2">
+                      Main {/\.(jpg|jpeg|png|gif|webp)$/i.test(mainMedia) ? 'Image' : 'Video'} Preview
+                    </h3>
+                    <div className="border border-gray-200 p-4 rounded-lg relative w-[500px]">
+                      {(mainMedia.type === "image" || /\.(jpg|jpeg|png|gif|webp)$/i.test(mainMedia)) ? (
+                        <img
+                          src={mainMedia.url || mainMedia}
+                          alt="Main preview"
+                          className="w-[500px] h-[200px] rounded-lg object-cover"
+                        />
+                      ) : (
+                        <div className="relative w-[500px] h-[200px] bg-black rounded-lg flex items-center justify-center">
+                          <video className="w-full h-full object-contain" controls>
+                            <source src={mainMedia.url || mainMedia} type="video/mp4" />
+                          </video>
+                        </div>
+                      )}
+                      <button
+                        onClick={() => setMainMedia(null)}
+                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"
+                      >
+                        <IoMdClose size={16} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+
+                {images.length > 0 && (
+                  <>
+                    <h3 className="text-gray-700 text-lg font-medium mb-2">Additional Images</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      {images.map((image, index) => (
+                        <div key={index} className="border border-gray-200 p-4 rounded-lg relative">
+                          <img
+                            src={image.url || image}
+                            alt="Product preview"
+                            className="h-48 rounded-lg w-full object-cover mb-2"
+                          />
+                          <div className="flex justify-between items-center gap-2">
+                            <button
+                              onClick={() => removeImage(index)}
+                              className="text-red-600 text-sm hover:text-red-700"
+                            >
+                              Remove
+                            </button>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleThumbnailUpload(image.url)}
+                                className={`text-sm px-2 py-1 rounded ${thumbnail === image.url
+                                  ? 'bg-green-500 text-white'
+                                  : 'bg-gray-200 text-gray-700'
+                                  }`}
+                              >
+                                {thumbnail === (image.url || image) ? 'Thumbnail' : 'Set as Thumbnail'}
+                              </button>
+                              <button
+                                onClick={() => handleMainUpload(image.url, 'image')}
+                                className={`text-sm px-3 py-1 rounded ${mainMedia?.type === 'image' && mainMedia.url === image.url
+                                  ? 'bg-blue-500 text-white'
+                                  : 'bg-gray-200 text-gray-700'
+                                  }`}
+                              >
+                                {mainMedia?.type === 'image' && (mainMedia.url === image.url || mainMedia === image)
+                                  ? 'Main Image'
+                                  : 'Set as Main'}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+                {videos.length > 0 && (
+                  <>
+                    <h3 className="text-gray-700 text-lg font-medium mt-6 mb-2">Additional Videos</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      {videos.map((video, index) => (
+                        <div key={index} className="border border-gray-200 p-4 rounded-lg relative">
+                          <div className="relative w-full h-48 bg-black rounded-lg mb-2 flex items-center justify-center">
+                            <video className="w-full h-full object-contain">
+                              <source src={video.url || video} type="video/mp4" />
+                            </video>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <FaPlay className="text-white text-2xl" />
+                            </div>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <button
+                              onClick={() => removeVideo(index)}
+                              className="text-red-600 text-sm hover:text-red-700"
+                            >
+                              Remove
+                            </button>
+                            <button
+                              onClick={() => handleMainUpload(video.url, 'video')}
+                              className={`text-sm px-3 py-1 rounded ${mainMedia?.type === 'video' && mainMedia.url === video.url
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-gray-200 text-gray-700'
+                                }`}
+                            >
+                              {mainMedia?.type === 'video' && mainMedia.url === video.url
+                                ? 'Main Video'
+                                : 'Set as Main'}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
+
 
         {/* Save and Cancel Buttons */}
         <div className="flex gap-4 px-6 py-3">

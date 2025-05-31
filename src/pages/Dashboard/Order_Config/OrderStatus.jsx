@@ -155,10 +155,34 @@ const OrderStatus = () => {
   }, [list, findUser]);
 
   const onEdit = (id) => {
-    const order = orderStatus[0]; // Get the order object
+    const order = orderStatus; // Get the order object
+
+    console.log('ID:', id);
+    console.log('All orders:', order); // This is probably your array of orders
+
+    // First, find which order contains the product with this id
+    const targetOrder = order.find(orderItem =>
+      orderItem.products && orderItem.products.some(product => product.id === id)
+    );
+
+    if (!targetOrder) {
+      console.error('No order found containing product with id:', id);
+      return;
+    }
+
+    console.log('Found order:', targetOrder);
+
+    // Then find the specific product within that order
+    const productData = targetOrder.products.find(product => product.id === id);
+
+    if (!productData) {
+      console.error('Product not found with id:', id);
+      return;
+    }
+
     const EditData = {
-      ...order.products.find((data) => data._id === id), // Spread the found product data
-      orderCode: order.orderCode // Add the orderCode from the order
+      ...productData,
+      orderCode: targetOrder.orderCode
     };
     console.log(EditData)
     if (EditData) {

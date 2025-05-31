@@ -560,6 +560,16 @@ const Home = () => {
   const ordersChartData = prepareOrdersData();
   const usersChartData = prepareUsersData();
 
+  const getTodayOrdersCount = () => {
+    const today = new Date().toLocaleDateString();
+
+    return filteredOrderStatus.filter((order) => {
+      const orderDate = new Date(order.createdAt).toLocaleDateString();
+      return orderDate === today;
+    }).length;
+  };
+
+
   return (
     <div className="flex bg-gray-100 custom-container">
       <div className="flex-1 flex flex-col">
@@ -597,8 +607,8 @@ const Home = () => {
                 <FaCartArrowDown size={30} />
               </div>
               <div>
-                <h2 className="text-xl font-bold">Total Reports</h2>
-                <p className="text-gray-500 text-lg">15</p>
+                <h2 className="text-xl font-bold">Today Orders</h2>
+                <p className="text-gray-500 text-lg">{getTodayOrdersCount()}</p>
               </div>
             </div>
           </div>
@@ -627,7 +637,7 @@ const Home = () => {
 
             {/* Users Chart */}
             <div className="bg-white px-6 py-6 rounded-xl shadow-md">
-              <h2 className="text-xl font-bold mb-4">User Signups Over Time</h2>
+              <h2 className="text-xl font-bold mb-4">User Registers Over Time</h2>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={usersChartData}>
                   <Bar dataKey="users" fill="#10b981" radius={[4, 4, 0, 0]} />

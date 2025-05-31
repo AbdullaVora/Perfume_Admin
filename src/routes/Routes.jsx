@@ -98,6 +98,10 @@ export const privateRoutes = [
     path: "/stock",
     element: <Stock />
   },
+  {
+    path: "/inquiry-emails",
+    element: <Stock />
+  }
 ];
 
 export const publicRoutes = [
