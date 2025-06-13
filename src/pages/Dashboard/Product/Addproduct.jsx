@@ -27,6 +27,9 @@ const Addproduct = () => {
   const [description, setDescription] = useState('');
   const [forPage, setForPage] = useState(null);
   const [forSection, setForSection] = useState(null);
+  const [metaTitle, setMetaTitle] = useState('');
+  const [metaDescription, setMetaDescription] = useState('');
+  const [metaKeywords, setMetaKeywords] = useState('');
 
   // State for details and additional rows
   const [details, setDetails] = useState([{ title: '', value: '' }]);
@@ -59,9 +62,9 @@ const Addproduct = () => {
   // Define page and section options
   const pageSectionMap = {
     Home: ["New Arrival", "Our Products"],
-    Collection: ["Banner", "Products"],
-    Blog: ["Banner", "Blogs"],
-    About: ["Banner", "Main"]
+    Collection: ["Products"],
+    // Blog: ["Banner", "Blogs"],
+    // About: ["Banner", "Main"]
   };
 
   const pageOptions = Object.keys(pageSectionMap);
@@ -145,6 +148,9 @@ const Addproduct = () => {
     setSelectedBrand(data?.brand?.name || ''); // Load brand
     setSelectedSubcategory(data?.subcategory?.name || '');
     setDescription(data?.description || '');
+    setMetaTitle(data?.metaTitle || '');
+    setMetaDescription(data?.metaDescription || '');
+    setMetaKeywords(data?.metaKeywords || '')
 
     // Set details - ensure it's always an array with at least one item
     setDetails(
@@ -436,6 +442,9 @@ const Addproduct = () => {
     const formData = {
       name,
       slug,
+      metaTitle,
+      metaDescription,
+      metaKeywords,
       skuCode,
       brandCategory: selectedBrandCategory,
       brand: selectedBrand,
@@ -710,6 +719,97 @@ const Addproduct = () => {
                         ))}
                       </select>
                     </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* SEO Metadata Section */}
+        <div className="px-6 py-3">
+          <div className="bg-white rounded-lg shadow-md">
+            <div className="flex gap-8">
+              {/* Left Side - Icon and Title */}
+              <div className="flex flex-col bg-gray-50 justify-start p-5 rounded-lg w-[250px] items-start">
+                <div className="rounded-lg">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-24 w-24 text-gray-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                </div>
+                <div className="mt-4">
+                  <h2 className="text-gray-800 text-xl font-bold">SEO Metadata</h2>
+                  <p className="text-gray-600 text-sm mt-2">
+                    Add metadata to improve search engine visibility.
+                  </p>
+                </div>
+              </div>
+
+              {/* Right Side - Form */}
+              <div className="flex-1 pe-6 py-6">
+                <form className="space-y-6">
+                  {/* Meta Title */}
+                  <div>
+                    <label htmlFor="metaTitle" className="text-gray-500 text-sm block font-medium mb-1">
+                      Meta Title
+                    </label>
+                    <input
+                      type="text"
+                      id="metaTitle"
+                      value={metaTitle}
+                      onChange={(e) => setMetaTitle(e.target.value)}
+                      className="border border-gray-300 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-orange-500 px-3 py-2"
+                      maxLength="60"
+                      placeholder="Recommended: 50-60 characters"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      {metaTitle.length}/60 characters
+                    </p>
+                  </div>
+
+                  {/* Meta Description */}
+                  <div>
+                    <label htmlFor="metaDescription" className="text-gray-500 text-sm block font-medium mb-1">
+                      Meta Description
+                    </label>
+                    <textarea
+                      id="metaDescription"
+                      rows={3}
+                      value={metaDescription}
+                      onChange={(e) => setMetaDescription(e.target.value)}
+                      className="border border-gray-300 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-orange-500 px-3 py-2"
+                      maxLength="160"
+                      placeholder="Recommended: 150-160 characters"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      {metaDescription.length}/160 characters
+                    </p>
+                  </div>
+
+                  {/* Meta Keywords */}
+                  <div>
+                    <label htmlFor="metaKeywords" className="text-gray-500 text-sm block font-medium mb-1">
+                      Meta Keywords
+                    </label>
+                    <input
+                      type="text"
+                      id="metaKeywords"
+                      value={metaKeywords}
+                      onChange={(e) => setMetaKeywords(e.target.value)}
+                      className="border border-gray-300 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-orange-500 px-3 py-2"
+                      placeholder="Comma separated keywords (e.g., product, category, brand)"
+                    />
                   </div>
                 </form>
               </div>

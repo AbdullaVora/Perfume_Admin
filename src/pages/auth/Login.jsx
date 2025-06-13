@@ -39,7 +39,7 @@ export default function Login() {
       {/* Right Side Login Form */}
       <div className="flex items-center justify-center w-1/2">
         <div className="bg-white p-6 rounded-lg shadow-md w-96 relative">
-          <img src={login_logo} alt="logo" className="absolute -top-22 left-1/2 transform -translate-x-1/2 w-[200px]" />
+          <img src={login_logo} alt="logo" className="absolute -top-45 left-1/2 transform -translate-x-1/2 w-[200px]" />
           <h2 className="text-xl font-bold mb-2 text-center">Login Now!</h2>
           <p className="text-gray-600 mb-4 text-center">Enter your email and password for login</p>
 

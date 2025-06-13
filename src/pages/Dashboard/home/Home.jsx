@@ -371,16 +371,21 @@ const Home = () => {
 
 
   const transformOrdersData = (orders) => {
-    return orders.map((order) => {
-      const productNames = order.products
-        .map((product) => product.product?.name)
-        .filter((name) => name)
-        .join(", ");
-      return {
-        ...order,
-        productNames,
-      };
-    });
+    return orders.flatMap(order =>
+      order.products.map(productItem => ({
+        _id: productItem._id,
+        orderCode: order.orderCode,
+        userEmail: order.userEmail,
+        productName: productItem.product?.name || 'Unknown Product',
+        quantity: productItem.quantity,
+        // productOrderStatus: productItem.orderStatus, // status of that specific product
+        orderStatus: productItem.orderStatus,              // status of overall order
+        createdAt: order.createdAt,
+        isAction: order.isAction,
+        isOrderStatus: order.isOrderStatus,
+        status: order.status,
+      }))
+    );
   };
 
   // const transformOrderData = (orders) => {
@@ -457,8 +462,10 @@ const Home = () => {
     }
   }, [findUser, list]); // Add list to dependencies
 
-  // const filteredOrderStatus = transformOrderData(orderStatus);
-  const filteredOrderStatus = orderStatus;
+  const filteredOrderStatus = transformOrdersData(orderStatus);
+  // const filteredOrderStatus = orderStatus;
+
+  console.log("Filtered Order Status:", filteredOrderStatus);
 
   const onDelete = (id) => {
     dispatch(deleteUser(id))

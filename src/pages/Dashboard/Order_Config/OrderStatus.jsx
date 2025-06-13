@@ -175,6 +175,8 @@ const OrderStatus = () => {
     // Then find the specific product within that order
     const productData = targetOrder.products.find(product => product.id === id);
 
+    // console.log('Product Data:', productData);
+
     if (!productData) {
       console.error('Product not found with id:', id);
       return;

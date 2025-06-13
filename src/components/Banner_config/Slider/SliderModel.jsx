@@ -648,10 +648,10 @@ const Model = ({ onClose, isEdit, EditData }) => {
 
     // Define page and section options
     const pageSectionMap = {
-        Home: ["Banner", "Testimonials", "Flash Deals", "Latest News"],
-        Collection: ["Banner", "Products"],
-        Blog: ["Banner", "Blogs"],
-        About: ["Banner", "Main"]
+        Home: ["Testimonials", "Flash Deals", "Latest News"],
+        // Collection: ["Banner", "Products"],
+        // Blog: ["Banner", "Blogs"],
+        // About: ["Banner", "Main"]
     };
 
     const pageOptions = Object.keys(pageSectionMap);

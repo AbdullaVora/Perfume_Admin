@@ -134,7 +134,7 @@ import { toast, ToastContainer } from "react-toastify";
 const EmailModal = ({ inquiry, onClose, onSend }) => {
     console.log(inquiry);
     const [emailData, setEmailData] = useState({
-        subject: `Re: ${inquiry.subject || "Your Inquiry"}`,
+        subject: `${inquiry.subject || "Your Inquiry"}`,
         message: "",
     });
     const [isSending, setIsSending] = useState(false);

@@ -21,6 +21,7 @@
     "jspdf": "^3.0.1",
     "latest-version": "^9.0.0",
     "lightningcss": "^1.29.3",
+    "qrcode": "^1.5.4",
     "react": "^19.0.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",

@@ -459,10 +459,10 @@ const BannerModel = ({ onClose, isEdit, EditData }) => {
 
     // Define page and section options
     const pageSectionMap = {
-        Home: ["Banner", "Testimonials", "Flash Deals", "Latest News"],
-        Collection: ["Banner", "Products"],
+        Home: ["Banner"],
+        // Collection: ["Banner", "Products"],
         Blog: ["Banner", "Blogs"],
-        About: ["Banner", "Main"]
+        // About: ["Banner", "Main"]
     };
 
     const pageOptions = Object.keys(pageSectionMap);
@@ -801,7 +801,7 @@ const BannerModel = ({ onClose, isEdit, EditData }) => {
                     )}
 
                     {/* Banner Link */}
-                    <label className="block mb-2 font-medium text-[#0B0F19] mt-3">Banner Link <span className="text-red-500">*</span></label>
+                    {/* <label className="block mb-2 font-medium text-[#0B0F19] mt-3">Banner Link <span className="text-red-500">*</span></label>
                     <div className="relative w-full">
                         <FaLink className="absolute left-3 top-3 text-gray-500" />
                         <input
@@ -811,7 +811,7 @@ const BannerModel = ({ onClose, isEdit, EditData }) => {
                             value={bannerLink}
                             onChange={(e) => setBannerLink(e.target.value)}
                         />
-                    </div>
+                    </div> */}
 
                     {/* Upload Media */}
                     <div className="grid grid-cols-2 gap-4 mt-3">

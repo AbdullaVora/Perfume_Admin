@@ -5,6 +5,7 @@ import api from "../../../api/instance";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchSubAdmins } from "../../../redux/slices/Dashboard/SubAdmin/subAdminSlice";
 import { getUsers } from "../../../redux/slices/auth/userSlice";
+import { toast, ToastContainer } from "react-toastify";
 
 const InquiryEmail = () => {
   const [data, setData] = useState([]);
@@ -14,21 +15,19 @@ const InquiryEmail = () => {
   const [userId, setUserId] = useState();
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await api.get("/api/dashboard/getInquiryEmails");
-        if (response.status === 200) {
-          setData(response.data.emailData);
-        }
-      } catch (error) {
-        console.log(error.message);
+  const fetchData = async () => {
+    try {
+      const response = await api.get("/api/dashboard/getInquiryEmails");
+      if (response.status === 200) {
+        setData(response.data.emailData);
       }
-    };
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+  useEffect(() => {
     fetchData();
   }, []);
-
-  console.log(data);
 
   useEffect(() => {
     const userId = localStorage.getItem("AdminId");
@@ -68,11 +67,12 @@ const InquiryEmail = () => {
     }
   }, [list, findUser]);
 
-  const onDelete = (id) => {
-    const response = api.delete(`/api/dashboard/deleteInquiry/${id}`);
+  const onDelete = async (id) => {
+    const response = await api.delete(`/api/dashboard/deleteInquiryEmail/${id}`);
+    console.log(response);
     if (response.status === 200) {
       toast.success("Sub Admin deleted successfully!");
-      dispatch(fetchSubAdmins());
+      dispatch(fetchData());
     } else {
       console.error("Error deleting Inquiry");
     }
@@ -90,13 +90,14 @@ const InquiryEmail = () => {
               canDelete={canDelete}
               canActive={canActive}
               canEdit={canEdit}
-            //   canEmail={true}
+              //   canEmail={true}
               onDelete={onDelete}
               data={data}
             />
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };

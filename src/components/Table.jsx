@@ -1495,6 +1495,7 @@ const Table = ({
   canEmail,
   onEye,
 }) => {
+  console.log("Table component rendered with data:", data);
   // Ensure data is always an array
   const safeData = Array.isArray(data) ? data : [];
 
@@ -1675,20 +1676,29 @@ const Table = ({
     );
   }
 
-  const getStatusColor = (status) => {
-    if (!status || typeof status !== "string") {
+  const getStatusColor = (statusValue) => {
+    if (statusValue === undefined || statusValue === null) {
       return "bg-gray-300 text-gray-700";
     }
 
-    switch (status.toLowerCase()) {
+    if (!statusValue) return "bg-gray-300 text-gray-700";
+
+    const statusStr = String(statusValue).toLowerCase();
+
+    switch (statusStr) {
+      case "complete":
+        return "bg-green-500 text-white";
+      case "process":
+      case "in progress":
+        return "bg-blue-500 text-white";
       case "pending":
         return "bg-yellow-500 text-white";
       case "cancelled":
         return "bg-red-500 text-white";
-      case "complete":
+      case "true":
         return "bg-green-500 text-white";
-      case "process":
-        return "bg-blue-500 text-white";
+      case "false":
+        return "bg-gray-300 text-gray-700";
       default:
         return "bg-gray-300 text-gray-700";
     }

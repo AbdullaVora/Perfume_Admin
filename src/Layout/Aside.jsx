@@ -478,13 +478,13 @@ const Aside = ({ isCollapsed, toggleCollapse }) => {
     {
       id: 2,
       icon: <FaLayerGroup size={16} />,
-      label: "Banner Config",
+      label: "Banner / Blogs",
       permission: "banner_config",
       dropdown: [
         {
           id: "2-1",
           icon: <BiSolidSlideshow size={18} />,
-          label: "Banner",
+          label: "Banner / Blogs",
           link: "banner",
         },
       ],
